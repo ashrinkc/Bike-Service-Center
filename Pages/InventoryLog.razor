@@ -1,0 +1,52 @@
+﻿@page "/inventoryLog"
+@inject NavigationManager NavManager
+@using System.Globalization;
+<div class="p-5">
+    <h1>Item Log</h1>
+    <select @bind="SelectedMonth">
+    <option value="">-Select a month-</option>
+    @foreach(var month in months) @*looping through the months*@
+    {
+        <option value="@month">@month</option> @*showing all the months as option*@
+    }
+</select> 
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Approved By</th>
+                <th>Taken By</th>
+                <th>Date Taken Out</th>
+            </tr>
+        </thead> 
+        <tbody>
+            @foreach(var item in withdrawedItem){
+                @* comparing month to the items date taken out*@
+                @if (item.DateTakenOut.ToString("MMMM", CultureInfo.InvariantCulture) == SelectedMonth)
+                {
+                    <tr>
+                        <td style ="background-color: lightblue;">@item.Name</td>
+                        <td style="background-color: lightblue;">@item.Quantity</td>
+                        <td style="background-color: lightblue;">@item.ApprovedBy</td>
+                    <td style="background-color: lightblue;">@item.TakenBy</td>
+                    <td style="background-color: lightblue;">@item.DateTakenOut</td>
+                </tr>
+                }
+
+            }
+        </tbody>
+    </table>
+</div> 
+
+
+@code{
+    List<WithdrawItem> withdrawedItem { get; set; }
+    private string SelectedMonth { get; set; } = "January";
+    private List<string> months = new List<string>() { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+    protected override void OnInitialized()
+    {
+        withdrawedItem = InventoryService.GetWithDrawItem(); /*getting withdrawn item data*/
+    }
+    
+}

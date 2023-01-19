@@ -1,0 +1,96 @@
+﻿@page "/removeItem"
+@inject NavigationManager NavManager
+@using System.Globalization;
+<div class="withdraw-item-container">
+    <h1>Withdraw Items</h1>
+    <form class="removeItemForm" @onsubmit="RemoveItems">
+            <div class="form-group">
+                <label for="item-name">Item Name</label>
+            <select class="form-control" @bind="SelectedItemName">
+                    <option value="">-Select an Item-</option>
+                    @foreach (var item in Inventory) @*looping through the items in Inventory*@
+                    {
+                        @if (item.Quantity > 0) @*Only show if the quantity is greater than zero*@
+                        {
+                            <option value="@item.Name">@item.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input class="form-control" type="number" @bind="Quantity" />
+            </div>
+            <div class="form-group">
+                <label for="taken-by">Taken by:</label>
+                <input class="form-control" type="text" @bind="TakenBy" />
+            </div>
+        <button class="btn btn-primary" type="submit">
+            <span class="oi oi-arrow-circle-left" />Withdraw Item
+        </button>
+        </form>
+         @if (!string.IsNullOrEmpty(_withdrawItemErrorMessage)){
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@_withdrawItemErrorMessage</MudAlert>
+        }
+         @if (!string.IsNullOrEmpty(_withdrawItemSuccessMessage)){
+        <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">@_withdrawItemSuccessMessage</MudAlert>
+        }
+</div>
+
+
+
+@code{
+    [CascadingParameter]
+    private GlobalState _globalState { get; set; }
+    string SelectedItemName { get; set; }
+    int Quantity { get; set; }
+    string TakenBy { get; set; }
+    string ApprovedBy { get; set; }
+    List<Item> Inventory { get; set; }
+    List<WithdrawItem> withdrawedItem { get; set; }
+    private string SelectedMonth { get; set; }
+    private string _withdrawItemErrorMessage = "";
+    private string _withdrawItemSuccessMessage = "";
+    private bool _successfullWithdraw { get; set; } = false;
+    private List<string> months = new List<string>() { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+    protected override void OnInitialized()
+    {
+        withdrawedItem = InventoryService.GetWithDrawItem(); /*getting withdrawn item data from JSON file*/
+        Inventory = InventoryService.GetInventoryData(); /*getting all item data from JSON file*/
+        ApprovedBy = _globalState.CurrentUser.Username;
+    }
+
+    public void RemoveItems(){
+        foreach(var item in Inventory){
+            if(item.Name == SelectedItemName){
+                if(Quantity > item.Quantity){
+                    _withdrawItemSuccessMessage = "";
+                    _withdrawItemErrorMessage = "Withdraw quantity cannot be more than total quantity in stock";
+                    return;
+                }
+            }
+        }
+        //condition to check is the information is not filled
+        if (SelectedItemName == null || Quantity <= 0 || TakenBy == null)
+        {
+            _withdrawItemSuccessMessage = "";
+            _withdrawItemErrorMessage = "Please fill all the required information";
+            return;
+        }
+        // Check if the current time is within the allowed time range for removing items
+        var currentTime = DateTime.Now;
+        if(currentTime.Hour < 9 || currentTime.Hour > 16 || 
+           currentTime.DayOfWeek == DayOfWeek.Sunday || currentTime.DayOfWeek == DayOfWeek.Sunday )
+        {
+            _withdrawItemSuccessMessage = "";
+            _withdrawItemErrorMessage = "You can only remove items from monday to friday 9 a.m to 4 p.m";
+            return;
+        }
+        _successfullWithdraw = InventoryService.AddWithDrawItems(SelectedItemName, Quantity, TakenBy, ApprovedBy);
+        InventoryService.RemoveItemFromInventory(SelectedItemName, Quantity);
+        if(_successfullWithdraw){
+            _withdrawItemErrorMessage = "";
+            _withdrawItemSuccessMessage = "Item has been successfully added";
+        }
+    }
+}

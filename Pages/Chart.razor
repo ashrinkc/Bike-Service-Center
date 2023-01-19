@@ -1,0 +1,52 @@
+﻿@page "/chart"
+
+<div class="p-5">
+<div>
+    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="100%"></MudChart>
+</div>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Number of times taken out</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in @items){ @*looping through the items*@
+            <tr>
+                <th>@item.Name</th>
+                <th>@item.TimesTakenOut</th>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+</div>
+@code {
+    private List<string> ItemNames { get; set; }
+    private List<double> ItemTakenOut { get; set; }
+    private List<ChartSeries> _series;
+    private List<Item> items { get; set; }
+    protected override void OnInitialized()
+    {
+        items = InventoryService.GetInventoryData();
+        //creates a new list of integers by selecting the Name property
+        //from each element in the items list, and then converting the resulting
+        //sequence to a list using the ToList() method.
+        ItemNames = items.Select(i => i.Name).ToList();
+        ItemTakenOut = items.Select(i => i.TimesTakenOut).ToList();
+        XAxisLabels = ItemNames.ToArray();
+        _series = new List<ChartSeries>()
+        {
+            new ChartSeries() { Name = "Items Taken Out", Data = ItemTakenOut.Select(x=>(double)x).ToArray() },
+        };
+    }
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+
+    public List<ChartSeries> Series
+    {
+        get { return _series; }
+    }
+    public string[] XAxisLabels { get; set; }
+}

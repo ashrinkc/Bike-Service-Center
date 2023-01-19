@@ -1,0 +1,166 @@
+﻿@page "/inventory"
+@inject NavigationManager NavManager
+<div class="p-5">
+<h1>Inventory</h1>
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <h1 class="navbar-brand mb-0 h1">Inventory</h1>
+        <button class="btn btn-primary" @onclick="OpenAddItemDialog">
+            <span class="oi oi-plus" />Add Items
+        </button>
+    </nav>
+    <div class="d-flex justify-content-between">
+    <div class="form-group">
+        <label for="sort-criteria">Sort By:</label>
+        <select class="form-control" id="sort-criteria">  
+            <option value="quantity">Quantity</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" @onclick="SortItems"><span class="oi oi-sort-ascending" />Sort</button>
+    </div>
+     <table class="table">
+         <thead>
+             <tr>
+                 <th>Item Name</th>
+                 <th>Quantity</th>
+                 <th>Last Taken Out On</th>
+                 <th>Actions</th>
+             </tr>
+         </thead>
+         <tbody> 
+             @foreach(var item in _items){ @*looping through the _items*@
+                 <tr>
+                    <td style="background-color: lightblue;">@item.Name</td>
+                    <td style="background-color: lightblue;">@item.Quantity</td>
+                    <td style="background-color: lightblue;">@(item.LastTakenOutOn == DateTime.MinValue ? "Not taken out yet" : item.LastTakenOutOn.ToString("yyyy-mm-dd"))</td>
+                    <td style="background-color: lightblue;">
+                    <button class="btn btn-outline-danger" type="button" @onclick="()=>OpenDeleteItemDialog(item)">
+                        <span class="oi oi-delete" /> Delete
+                    </button>
+                </td>
+                 </tr>
+             }
+         </tbody>
+     </table>
+    @if (!string.IsNullOrEmpty(_ItemErrorMessage))
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@_ItemErrorMessage</MudAlert>
+    }
+    @if (!string.IsNullOrEmpty(_ItemSuccessMessage))
+    {
+        <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">@_ItemSuccessMessage</MudAlert>
+    }
+</div>
+
+@if (_showItemAdd){
+    <ModalDialog Title="Add Items" OnClose="@OnAddItemDialogClose" OkLabel="Add">
+        <form>
+            <div class="form-group">
+                <label for="item-name">Item Name:</label>
+                <input type="text" class="form-control" @bind="ItemName" />
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" class="form-control" @bind="Quantity" />
+            </div>
+        </form>
+    </ModalDialog>
+}
+
+@if (_showDeleteItemDialog)
+{
+    <ModalDialog Title="Delete Item" OnClose="@OnDeleteItemDialogClose" OkLabel="Confirm">
+        <p>Are you sure you want to delete <strong>@_deleteItem.Name</strong> item and their data?</p>
+    </ModalDialog>
+}
+
+@code{
+    private List<Item> _items { get; set; }
+    string ItemName { get; set; }
+    int Quantity { get; set; }
+    private bool _showItemAdd { get; set; }
+    private string _ItemErrorMessage = "";
+    private string _ItemSuccessMessage = "";
+    private bool _itemDelete { get; set; } 
+    private bool _itemAddSuccess { get; set; } = false;
+    private Item _deleteItem { get; set; }
+    private bool _showDeleteItemDialog { get; set; } = false;
+    private void SortItems()
+    {
+        _items = _items.OrderBy(i => i.Quantity).ToList();
+    }
+
+
+    private void OpenAddItemDialog(){
+        _showItemAdd = true;
+    }
+
+    protected override void OnInitialized()
+    {
+        _items = InventoryService.GetInventoryData(); /*getting data of the items stored in the json file*/
+    }
+    private void OpenDeleteItemDialog(Item item)
+    {
+        _deleteItem = item;
+        _showDeleteItemDialog = true;
+    }
+    private void OnAddItemDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+
+            _showItemAdd = false;
+        }
+        else
+        {
+            try
+            {
+                if(ItemName == null || Quantity <= 0){
+                    _ItemSuccessMessage = "";
+                    _ItemErrorMessage = "Name should be present and the quantity should be one or above";
+                    _showItemAdd = false;
+                    return;
+                }
+                _itemAddSuccess = InventoryService.AddInventory(ItemName, Quantity);
+                if(_itemAddSuccess){
+                    _ItemErrorMessage = "";
+                    _ItemSuccessMessage = "Item has successfully been added";
+                }
+                _showItemAdd = false;
+            }
+            catch (Exception e)
+            {
+                _ItemErrorMessage = e.Message;
+            }
+        }
+    }
+    private void OnDeleteItemDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+
+            _showDeleteItemDialog = false;
+            _deleteItem = null;
+        }
+        else
+        {
+            try
+            {
+                _itemDelete = InventoryService.Delete(_deleteItem.Id);
+                if (!_itemDelete)
+                {
+                    _ItemErrorMessage = "Item could not be deleted";
+                }
+                else
+                {
+                    _ItemSuccessMessage = "Item successfully deleted";
+                }
+                _showDeleteItemDialog = false;
+                _deleteItem = null;
+            }
+            catch (Exception e)
+            {
+                _ItemErrorMessage = e.Message;
+            }
+        }
+    }
+}

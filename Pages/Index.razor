@@ -1,0 +1,16 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+@code{
+    [CascadingParameter] 
+    private GlobalState _globalState { get; set; }
+    //cascading parameters allow you to pass multiple objects as arguments to a method
+    protected override void OnInitialized()
+    {
+        if (_globalState.CurrentUser == null)
+        {
+            NavManager.NavigateTo("/login");
+        }else{
+           NavManager.NavigateTo("/inventory");
+        }
+    }
+}

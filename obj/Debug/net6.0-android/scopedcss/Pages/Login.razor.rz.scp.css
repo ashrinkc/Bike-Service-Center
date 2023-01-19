@@ -1,0 +1,33 @@
+.loginBody[b-v4ignwsoli] {
+    display: flex;
+    gap: 10vh;
+    width: 100%;
+}
+
+.formLogin[b-v4ignwsoli]{
+    width:30%;
+    height:20vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background-color: red;
+    border-radius:20vh;
+}
+
+.login-form-info[b-v4ignwsoli] {
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+}
+
+.imgContainer[b-v4ignwsoli] {
+    background: red;
+    width: 100%;
+    height: 70%;
+}
+
+    .imgContainer > img[b-v4ignwsoli] {
+        width: 100%;
+        height: 70%;
+        object-fit: cover;
+    }

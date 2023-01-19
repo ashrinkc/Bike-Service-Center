@@ -1,0 +1,63 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="">BikeServiceCenter</a>
+		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+	</div>
+</div>
+
+<div class='@(_collapseNavMenu ? "collapse" : "")' @onclick="ToggleNavMenu">
+	<nav class="flex-column">
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="/addAdmin">
+				<span class="oi oi-person" aria-hidden="true"></span> Users
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="/inventory">
+				<span class="oi oi-home" aria-hidden="true"></span> Inventory
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="removeItem">
+				<span class="oi oi-arrow-thick-left" aria-hidden="true"></span> Withdraw Item
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="inventoryLog">
+				<span class="oi oi-book" aria-hidden="true"></span> Inventory Log
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="chart">
+				<span class="oi oi-graph" aria-hidden="true"></span> Chart
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+            <NavLink class="nav-link text-danger" role="button" @onclick="LogoutHandler">
+                <span class="oi oi-account-logout" /> Logout
+            </NavLink>
+        </div>
+	</nav>
+</div>
+
+@code {
+	[Parameter]
+    public string Username { get; set; }
+	[Parameter]
+	public EventCallback LogoutHandler { get; set; }
+	//private bool collapseNavMenu = true;
+	private bool _collapseNavMenu { get; set; } = true;
+
+	private void ToggleNavMenu()
+	{
+		_collapseNavMenu = !_collapseNavMenu;
+	}
+	//private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+	//private void ToggleNavMenu()
+	//{
+	//	collapseNavMenu = !collapseNavMenu;
+	//}
+}

@@ -1,0 +1,64 @@
+.navbar-toggler[b-x4t75cu9lo] {
+    background-color: rgba(255, 255, 255, 0.1);
+    /*background-image: url("https://en.pimg.jp/073/619/583/1/73619583.jpg");*/
+}
+
+.top-row[b-x4t75cu9lo] {
+    height: 3.5rem;
+    background-color: #222831;
+    /*background-image: url("https://w0.peakpx.com/wallpaper/622/373/HD-wallpaper-black-space-black-star-stars-thumbnail.jpg");*/
+}
+
+.navbar-brand[b-x4t75cu9lo] {
+    font-size: 1.1rem;
+}
+
+.oi[b-x4t75cu9lo] {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.nav-item[b-x4t75cu9lo] {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+    .nav-item:first-of-type[b-x4t75cu9lo] {
+        padding-top: 1rem;
+    }
+
+    .nav-item:last-of-type[b-x4t75cu9lo] {
+        padding-bottom: 1rem;
+    }
+
+    .nav-item[b-x4t75cu9lo]  a {
+        color: #d7d7d7;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+
+        .nav-item[b-x4t75cu9lo]  a.active {
+            background-color: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+.nav-item[b-x4t75cu9lo]  a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler[b-x4t75cu9lo] {
+        display: none;
+    }
+
+    .collapse[b-x4t75cu9lo] {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+    }
+}

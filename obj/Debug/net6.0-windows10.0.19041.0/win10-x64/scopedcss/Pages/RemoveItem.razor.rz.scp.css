@@ -1,0 +1,14 @@
+.withdraw-item-container[b-76hx2dg1st] {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.removeItemForm[b-76hx2dg1st]{
+    display:flex;
+    flex-direction:column;
+    gap:4vh;
+}

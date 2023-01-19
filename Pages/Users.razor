@@ -1,0 +1,172 @@
+﻿@page "/addAdmin"
+@inject NavigationManager NavManager
+
+<div class="container p-5">
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <h1 class="navbar-brand mb-0 h1">Users</h1>
+        <button class="btn btn-primary" type="button" @onclick="OpenAddUserDialog">
+            <span class="oi oi-plus" /> Add
+        </button>
+    </nav>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created At</th>
+            <th>CreatedBy</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                    <td style="background-color: lightblue;">@user.Username</td>
+                <td style="background-color: lightblue;">@user.Role</td>
+                    <td style="background-color: lightblue;">@user.CreatedDate.ToString("MMM dd, yyyy h:mm tt")</td>
+                    <td style="background-color: lightblue;">@user.CreatedBy</td>
+                    <td style="background-color: lightblue;">
+                    <button class="btn btn-outline-danger" type="button" @onclick="()=>OpenDeleteUserDialog(user)">
+                        <span class="oi oi-delete" /> Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    @if (!string.IsNullOrEmpty(_userErrorMessage))
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@_userErrorMessage</MudAlert>
+    }
+    @if (!string.IsNullOrEmpty(_userSuccessMessage))
+    {
+        <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">@_userSuccessMessage</MudAlert>
+    }
+</div>
+
+                        
+@if (_showAddUserDialog)
+{
+    <ModalDialog Title="Add User" OnClose="@OnAddUserDialogClose" OkLabel="Add">
+    <form>
+            <div class="form-group">
+                <label for="floatingInput">Username</label>
+            <input type="text" class="form-control username" @bind="_username" placeholder="Username" />
+        </div>
+        <div class="form-floating mb-3">
+                <label for="floatingPassword">Password</label>
+            <input type="password" class="form-control password" @bind="_password" placeholder="Password" />
+        </div>
+         <div>
+             <label for="role">Role:</label>
+             <input class="form-control" type="text" id="role" value="admin" readonly />
+         </div>
+          <div>
+             <label for="createdAt">Created At:</label>
+             <input class="form-control" type="text" id="createdAt" value="@DateTime.Now" readonly />
+          </div>
+        </form>
+    </ModalDialog>
+}
+
+@if (_showDeleteUserDialog)
+{
+    <ModalDialog Title="Delete User" OnClose="@OnDeleteUserDialogClose" OkLabel="Confirm">
+    <p>Are you sure you want to delete <strong>@_deleteUser.Username</strong> user and their data?</p>
+   @* @if (!string.IsNullOrEmpty(_deleteUserErrorMessage))
+        {
+            <AlertMessage Type="danger" Message="@_deleteUserErrorMessage" />
+        }*@
+    </ModalDialog>
+}
+
+@code {
+    [CascadingParameter]
+    private GlobalState _globalState { get; set; }
+    private List<User> _users { get; set; }
+    private bool _showAddUserDialog { get; set; }
+    private bool _showDeleteUserDialog { get; set; }
+    private bool _adminAdded { get; set; }
+    private bool _adminDelete { get; set; }
+    private string _userErrorMessage = "";
+    private string _userSuccessMessage = "";
+    private User _deleteUser { get; set; }
+    private string _username { get; set; }
+    private string _password { get; set; }
+    private string _role { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _users = UserService.GetAll();
+    }
+
+    private void OpenDeleteUserDialog(User user)
+    {
+        _deleteUser = user;
+        _showDeleteUserDialog = true;
+    }
+
+    private void OpenAddUserDialog()
+    {
+        _showAddUserDialog = true;
+    }
+    private void OnAddUserDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+
+            _showAddUserDialog = false;
+        }
+        else
+        {
+            try
+            {
+                _adminAdded = UserService.AddAdmin(_username, _password, _globalState.CurrentUser.Username);
+                if (!_adminAdded)
+                {
+                    _userSuccessMessage = "";
+                    _userErrorMessage = "There are either already two administrators present, or the fields for administrators are empty. Please check!!!";
+                }
+                else{
+                    _userErrorMessage = "";
+                    _userSuccessMessage = "User successfully added";
+                }
+                _showAddUserDialog = false;
+
+            }
+            catch (Exception e)
+            {
+                _userErrorMessage = e.Message;
+            }
+        }
+    }
+    private void OnDeleteUserDialogClose(bool isCancel)
+    {
+        if (isCancel)
+        {
+
+            _showDeleteUserDialog = false;
+            _deleteUser = null;
+        }
+        else
+        {
+            try
+            {
+                _adminDelete = UserService.Delete(_deleteUser.Id);
+                if(!_adminDelete){
+                    _userErrorMessage = "There always has to be one admin present";
+                }else{
+                    _userSuccessMessage = "User successfully deleted";
+                }
+                _showDeleteUserDialog = false;
+                _deleteUser = null;
+            }
+            catch (Exception e)
+            {
+                _userErrorMessage = e.Message;
+            }
+        }
+    }
+}
+
